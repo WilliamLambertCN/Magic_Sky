@@ -13,16 +13,9 @@ import torchvision.transforms as transforms
 from PIL import Image
 from torch.utils.data import DataLoader
 from matplotlib import pyplot as plt
-import torch.optim as optim
-import torchvision.models as models
 from tools.common_tools import set_seed
-from torch.utils.tensorboard import SummaryWriter
 from tools.my_dataset import SkyDataset
 from tools.unet import UNet
-from tools.LovaszLoss import lovasz_hinge
-from torch.utils.data import SubsetRandomSampler
-
-
 
 def compute_dice(y_pred, y_true):
     """
@@ -35,13 +28,13 @@ def compute_dice(y_pred, y_true):
     return np.sum(y_pred[y_true == 1]) * 2.0 / (np.sum(y_pred) + np.sum(y_true))
 
 ##########################################################
-def unet_infer(demo_path_img,demo,save_result):
+def unet_infer(demo_path_img, demo, save_result):
     # demo = True
     # demo_path_img = 'd:/MyLearning/DIP/Final_Project/Unet/Demo/1.jpg'
     # save_result = True
 
     testset_path = os.path.join("dataset/testset")
-    checkpoint_load = 'd:/MyLearning/DIP/Final_Project/Unet/test2_lovasz_1e-2/checkpoint_199_epoch.pkl'
+    checkpoint_load = 'test2_lovasz_1e-2/checkpoint_199_epoch.pkl'
     shuffle_dataset = True
 
     vis_num = 1000
@@ -58,7 +51,7 @@ def unet_infer(demo_path_img,demo,save_result):
         valid_loader = DataLoader(testset, batch_size=1, drop_last=False, shuffle=False)
     else:
         img_pil = Image.open(demo_path_img).convert('RGB')
-        original_img=np.array(img_pil)
+        original_img = np.array(img_pil)
         w, h = img_pil.size
         img_pil = img_pil.resize((in_size, in_size), Image.BILINEAR)
 
@@ -141,7 +134,7 @@ def unet_infer(demo_path_img,demo,save_result):
             # plt.show()
             # plt.pause(0.5)
             # plt.close()
-           
+
             # img_hwc = Image.fromarray(img_hwc)
             # img_hwc = img_hwc.resize((w, h), Image.BILINEAR)
             # img_hwc = np.array(img_hwc)
@@ -149,4 +142,4 @@ def unet_infer(demo_path_img,demo,save_result):
             mask_pred_gray = mask_pred_gray.resize((w, h), Image.BILINEAR)
             mask_pred_gray = np.array(mask_pred_gray)
 
-            return original_img,mask_pred_gray
+            return original_img, mask_pred_gray
