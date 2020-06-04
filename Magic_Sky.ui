@@ -108,9 +108,9 @@
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>90</y>
+      <y>104</y>
       <width>481</width>
-      <height>751</height>
+      <height>721</height>
      </rect>
     </property>
     <property name="frameShape">
@@ -138,7 +138,7 @@
          <property name="geometry">
           <rect>
            <x>20</x>
-           <y>360</y>
+           <y>331</y>
            <width>411</width>
            <height>361</height>
           </rect>
@@ -161,7 +161,7 @@
          <property name="geometry">
           <rect>
            <x>20</x>
-           <y>190</y>
+           <y>173</y>
            <width>411</width>
            <height>131</height>
           </rect>
@@ -194,14 +194,14 @@
           <item row="1" column="0">
            <widget class="QPushButton" name="pushButton_3">
             <property name="text">
-             <string>Show Input</string>
+             <string>Input Video</string>
             </property>
            </widget>
           </item>
           <item row="1" column="1">
            <widget class="QPushButton" name="pushButton_4">
             <property name="text">
-             <string>Show Result</string>
+             <string>Result Video</string>
             </property>
            </widget>
           </item>
@@ -218,7 +218,7 @@
          <property name="geometry">
           <rect>
            <x>20</x>
-           <y>50</y>
+           <y>37</y>
            <width>411</width>
            <height>111</height>
           </rect>
@@ -312,10 +312,10 @@
    <widget class="QLabel" name="Slogan">
     <property name="geometry">
      <rect>
-      <x>40</x>
-      <y>10</y>
-      <width>471</width>
-      <height>71</height>
+      <x>27</x>
+      <y>16</y>
+      <width>481</width>
+      <height>81</height>
      </rect>
     </property>
     <property name="font">
