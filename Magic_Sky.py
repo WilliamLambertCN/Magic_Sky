@@ -158,7 +158,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "Magic Sky (V1.0)"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Magic Sky (V1.1)"))
         self.groupBox_4.setTitle(_translate("MainWindow", "Source"))
         self.groupBox_5.setTitle(_translate("MainWindow", "Target"))
         self.groupBox_6.setTitle(_translate("MainWindow", "Result"))
