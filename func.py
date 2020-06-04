@@ -270,43 +270,36 @@ def compute_dice(y_pred, y_true):
     y_pred, y_true = np.round(y_pred).astype(int), np.round(y_true).astype(int)
     return np.sum(y_pred[y_true == 1]) * 2.0 / (np.sum(y_pred) + np.sum(y_true))
 
-def photo_infer(src):
+def photo_infer(src, net):
     """
     Args:
         src:
 
     Returns: pred mask
     """
-    checkpoint_load = 'tools/checkpoint_199_epoch.pkl'
+    # checkpoint_load = 'tools/checkpoint_199_epoch.pkl'
+    # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    # set_seed()  # 设置随机种子
     mask_thres = 0.5
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    set_seed()  # 设置随机种子
     in_size = 224
     h, w, c = src.shape
-    print(h, w)
+    # print(h, w)
     img_hwc = cv2.resize(src, (in_size, in_size), interpolation=cv2.INTER_LINEAR)
     img_chw = img_hwc.transpose((2, 0, 1))
     img_chw = torch.from_numpy(img_chw).float()
-    net = UNet(in_channels=3, out_channels=1, init_features=32)  # init_features is 64 in stander uent
-    net.to(device)
-    if checkpoint_load is not None:
-        path_checkpoint = checkpoint_load
-        checkpoint = torch.load(path_checkpoint)
-
-        net.load_state_dict(checkpoint['model_state_dict'])
-        print('load checkpoint from %s' % path_checkpoint)
-    else:
-        raise Exception("\nPlease specify the checkpoint")
+    # net = UNet(in_channels=3, out_channels=1, init_features=32)  # init_features is 64 in stander uent
+    # net.to(device)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     net.eval()
     with torch.no_grad():
         inputs = img_chw.to(device).unsqueeze(0)
         outputs = net(inputs)
         mask_bw = (outputs.squeeze().ge(mask_thres).cpu().data.numpy()).astype("uint8")
     mask_bw = cv2.resize(mask_bw, (w, h))
-    print(mask_bw.shape)
+    print("Input's shape is ", mask_bw.shape)
     return mask_bw
 
-def photo_replace(src, tgt):
+def photo_replace(src, tgt, net):
     """
 
     Args:
@@ -315,7 +308,7 @@ def photo_replace(src, tgt):
     Returns: results
 
     """
-    mask_bw = photo_infer(src)
+    mask_bw = photo_infer(src, net)
     I_rep = replace_sky(src, mask_bw, tgt)
     print('color transferring...')
     transfer = color_transfer(tgt, mask_bw, I_rep, 1)
