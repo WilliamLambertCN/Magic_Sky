@@ -5,22 +5,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import QEventLoop, QTimer
 from Magic_Sky import Ui_MainWindow
 import cv2
-import matplotlib
-from matplotlib import pyplot as plt
-
-matplotlib.use("Qt5Agg")
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-import matplotlib.cm as cm
-import matplotlib.font_manager as fm
-import numpy as np
-
-class Figure_Canva(FigureCanvas):
-
-    def __init__(self, parent=None):
-        self.fig = plt.figure()
-        super(Figure_Canva).__init__(self.fig)
-        self.setParent(parent)
-        self.axes = plt.subplot(111)
+from func import video_replace, photo_replace
 
 class EmittingStr(QtCore.QObject):
     textWritten = QtCore.pyqtSignal(str)  # 定义一个发送str的信号
@@ -103,7 +88,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def skyrpl(self):
         print('Replacing Sky')
-        print('Sky Replaced')
+        if self.modetext.currentText() == 'Photo':
+            result = photo_replace(self.src, self.tgt)
+            cv2.imwrite('temp/results.jpg', result[:, :, ::-1])
+            self.scene_show('temp/results.jpg', self.resultView)
+            print('Sky Replaced')
 
     def show_input(self):
         print('Show input')

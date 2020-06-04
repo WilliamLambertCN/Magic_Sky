@@ -34,7 +34,7 @@ def unet_infer(demo_path_img, demo, save_result):
     # save_result = True
 
     testset_path = os.path.join("dataset/testset")
-    checkpoint_load = 'test2_lovasz_1e-2/checkpoint_199_epoch.pkl'
+    checkpoint_load = 'tools/checkpoint_199_epoch.pkl'
     shuffle_dataset = True
 
     vis_num = 1000

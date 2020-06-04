@@ -1,63 +1,31 @@
 import os
 import time
-import torch.nn as nn
 import torch
 import numpy as np
-import torchvision.transforms as transforms
 from PIL import Image
-from torch.utils.data import DataLoader
-from matplotlib import pyplot as plt
-import torch.optim as optim
-import torchvision.models as models
 from tools.common_tools import set_seed
-from torch.utils.tensorboard import SummaryWriter
-from tools.my_dataset import SkyDataset
 from tools.unet import UNet
-from tools.LovaszLoss import lovasz_hinge
-from torch.utils.data import SubsetRandomSampler
 import cv2
-import func
-import copy
+import unet_infer as unet
 
 def find_sky_rect(mask):
-    sz = mask.shape
-    rows = sz[0]
-    cols = sz[1]
-
-    col = 0
-    c1 = -1
-    c2 = -1
-    r1 = -1
-    r2 = -1
-
-    while col <= cols - 1:
-        column = mask[:, col]
-        flag_c = column.any()
-        if c2 == -1 and flag_c:
-            c2 = col
-        elif c2 != -1 and flag_c:  # 已有起始位置，当前列不为空
-            c1 = col
-        col = col + 1
-
-    row = 0
-    while row <= rows - 1:
-        row_vec = mask[row, :]
-        flag_r = row_vec.any()
-        if r2 == -1 and flag_r:
-            r2 = row
-        elif r2 != -1 and flag_r:
-            r1 = row
-        row = row + 1
-
+    index = np.where(mask != 0)
+    index = np.array(index, dtype=int)
+    y = index[0, :]
+    x = index[1, :]
+    c2 = np.min(x)
+    c1 = np.max(x)
+    r2 = np.min(y)
+    r1 = np.max(y)
     return (r1, c1, r2, c2)
 
 def replace_sky(img, mask_bw, sky):
-    r1, c1, r2, c2 = func.find_sky_rect(mask_bw)
+    r1, c1, r2, c2 = find_sky_rect(mask_bw)
 
     height = r1 - r2 + 1
     width = c1 - c2 + 1
 
-    sky_resize = cv2.resize(sky, (width, height))
+    sky_resize = cv2.resize(sky, (width, height), cv2.INTER_AREA)
 
     I_rep = img.copy()
     sz = img.shape
@@ -302,9 +270,64 @@ def compute_dice(y_pred, y_true):
     y_pred, y_true = np.round(y_pred).astype(int), np.round(y_true).astype(int)
     return np.sum(y_pred[y_true == 1]) * 2.0 / (np.sum(y_pred) + np.sum(y_true))
 
+def photo_infer(src):
+    """
+    Args:
+        src:
+
+    Returns: pred mask
+    """
+    checkpoint_load = 'tools/checkpoint_199_epoch.pkl'
+    mask_thres = 0.5
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    set_seed()  # 设置随机种子
+    in_size = 224
+    h, w, c = src.shape
+    print(h, w)
+    img_hwc = cv2.resize(src, (in_size, in_size), interpolation=cv2.INTER_LINEAR)
+    img_chw = img_hwc.transpose((2, 0, 1))
+    img_chw = torch.from_numpy(img_chw).float()
+    net = UNet(in_channels=3, out_channels=1, init_features=32)  # init_features is 64 in stander uent
+    net.to(device)
+    if checkpoint_load is not None:
+        path_checkpoint = checkpoint_load
+        checkpoint = torch.load(path_checkpoint)
+
+        net.load_state_dict(checkpoint['model_state_dict'])
+        print('load checkpoint from %s' % path_checkpoint)
+    else:
+        raise Exception("\nPlease specify the checkpoint")
+    net.eval()
+    with torch.no_grad():
+        inputs = img_chw.to(device).unsqueeze(0)
+        outputs = net(inputs)
+        mask_bw = (outputs.squeeze().ge(mask_thres).cpu().data.numpy()).astype("uint8")
+    mask_bw = cv2.resize(mask_bw, (w, h))
+    print(mask_bw.shape)
+    return mask_bw
+
+def photo_replace(src, tgt):
+    """
+
+    Args:
+        srcname:
+        tgtname:
+    Returns: results
+
+    """
+    mask_bw = photo_infer(src)
+    I_rep = replace_sky(src, mask_bw, tgt)
+    print('color transferring...')
+    transfer = color_transfer(tgt, mask_bw, I_rep, 1)
+    mask_edge = cv2.Canny(mask_bw, 100, 200)
+    mask_edge_hwc = cv2.merge([mask_edge, mask_edge, mask_edge])
+    print('guide filtering...')
+    result = guideFilter(src, transfer, mask_edge_hwc, (8, 8), 0.01)
+    return result
+
 ##########################################################
 def video_infer(img_pil):
-    checkpoint_load = 'd:/MyLearning/DIP/Final_Project/Unet/test2_lovasz_1e-2/checkpoint_199_epoch.pkl'
+    checkpoint_load = 'tools/checkpoint_199_epoch.pkl'
 
     vis_num = 1000
     mask_thres = 0.5
@@ -349,14 +372,6 @@ def video_infer(img_pil):
 
         img_hwc = inputs.cpu().data.numpy()[0, :, :, :].transpose((1, 2, 0)).astype("uint8")
 
-    # plt.subplot(131).imshow(img_hwc)
-    # plt.subplot(132).imshow(mask_pred_gray, cmap="gray")
-    # plt.subplot(133).imshow(pred_gray, cmap="gray")
-    # plt.show()
-
-    # img_hwc = Image.fromarray(img_hwc)
-    # img_hwc = img_hwc.resize((w, h), Image.BILINEAR)
-    # img_hwc = np.array(img_hwc)
     mask_pred_gray = Image.fromarray(mask_pred_gray)
     mask_pred_gray = mask_pred_gray.resize((w, h), Image.BILINEAR)
     mask_pred_gray = np.array(mask_pred_gray)
