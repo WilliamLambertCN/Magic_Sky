@@ -2,7 +2,7 @@ import sys
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import QEventLoop, QTimer, QUrl, QThread, pyqtSignal, Qt
-from PyQt5.QtGui import QPixmap, QImage
+from PyQt5.QtGui import QPixmap, QImage, QIcon
 # from PyQt5.QtMultimedia import *
 # from PyQt5.QtMultimediaWidgets import QVideoWidget
 import time
@@ -35,6 +35,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent=parent)
         self.setupUi(self)
+        self.setWindowIcon(QIcon('Software GUI/beauty.ico'))
         sys.stdout = EmittingStr(textWritten=self.outputWritten)
         sys.stderr = EmittingStr(textWritten=self.outputWritten)
         self.pushButton.clicked.connect(self.load_source)
@@ -52,7 +53,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         if self.checkpoint_load is not None:
             checkpoint = torch.load(self.checkpoint_load)
             self.net.load_state_dict(checkpoint['model_state_dict'])
-            print('load checkpoint from %s' % self.checkpoint_load)
+            print('\nWelcome to use Magic Sky Software. \nPytorch model loads checkpoint from %s' % self.checkpoint_load)
         else:
             raise Exception("\nPlease specify the checkpoint")
         set_seed()  # 设置随机种子
