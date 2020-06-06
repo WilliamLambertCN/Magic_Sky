@@ -10,4 +10,7 @@ Magic Sky Replace Software Pytorch Implemented.
 
 The software can implement sky replace and auto-adapting color transfer on both image and video. Results will be saved in temp dir. 
 Below is a video version example.
-![software](./Software%20GUI/Software_GUI_Video.png)
+![Video](./Software%20GUI/Software_GUI_Video.png)
+
+And this is photo version result.
+![photo](./Software%20GUI/Software_GUI_Photo.png)
