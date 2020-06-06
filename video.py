@@ -24,20 +24,20 @@ print('Video process launching...')
 tic_total = time.time()
 
 sky_num = str(5)
-sky_path = 'd:/MyLearning/DIP/Final_Project/Unet/sky/' + sky_num + '.jpg'
+sky_path = 'sky/' + sky_num + '.jpg'
 sky = cv2.imread(sky_path)
 sky = cv2.cvtColor(sky, cv2.COLOR_BGR2RGB)
 
-video = cv2.VideoCapture("d:/MyLearning/DIP/Final_Project/Unet/Demo/video_test.mp4")
+video = cv2.VideoCapture("Demo/video_test.mp4")
 fps = video.get(cv2.CAP_PROP_FPS)
 frameCount = video.get(cv2.CAP_PROP_FRAME_COUNT)
 size = (int(video.get(cv2.CAP_PROP_FRAME_WIDTH)), int(video.get(cv2.CAP_PROP_FRAME_HEIGHT)))
 
-videoWriter = cv2.VideoWriter('d:/MyLearning/DIP/Final_Project/Unet/Demo/trans.mp4', cv2.VideoWriter_fourcc(*'MP4V'),
+videoWriter = cv2.VideoWriter('Demo/trans.mp4', cv2.VideoWriter_fourcc(*'DIVX'),
                               fps, size)
 success, frame = video.read()
 index = 1
-while index < 4:
+while index < 0.1*frameCount:
     print('The', index, 'th frame of', int(frameCount), '...')
     # cv2.putText(frame, 'fps: ' + str(fps), (0, 200), cv2.FONT_HERSHEY_SIMPLEX, 2, (255,0,255), 5)
     # cv2.putText(frame, 'count: ' + str(frameCount), (0, 300), cv2.FONT_HERSHEY_SIMPLEX,2, (255,0,255), 5)

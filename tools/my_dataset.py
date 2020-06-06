@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
+import sys
+sys.path.append('.')
 import random
 import numpy as np
 import torch
@@ -7,7 +9,7 @@ from PIL import Image
 from torch.utils.data import Dataset
 from glob import glob
 from matplotlib import pyplot as plt
-from common_tools import set_seed
+from tools.common_tools import set_seed
 
 set_seed()
 

@@ -1,40 +1,21 @@
 import os
-import time
 import torch
 import numpy as np
 from PIL import Image
 from tools.common_tools import set_seed
 from tools.unet import UNet
 import cv2
-import unet_infer as unet
 
 def find_sky_rect(mask):
     index = np.where(mask != 0)
     index = np.array(index, dtype=int)
-    y = index[0, :]
-    x = index[1, :]
-    c2 = np.min(x)
-    c1 = np.max(x)
-    r2 = np.min(y)
-    r1 = np.max(y)
+    x = index[0, :]
+    y = index[1, :]
+    r2 = np.min(x)
+    r1 = np.max(x)
+    c2 = np.min(y)
+    c1 = np.max(y)
     return (r1, c1, r2, c2)
-
-def replace_sky(img, mask_bw, sky):
-    r1, c1, r2, c2 = find_sky_rect(mask_bw)
-
-    height = r1 - r2 + 1
-    width = c1 - c2 + 1
-
-    sky_resize = cv2.resize(sky, (width, height), cv2.INTER_AREA)
-
-    I_rep = img.copy()
-    sz = img.shape
-
-    for i in range(sz[0]):
-        for j in range(sz[1]):
-            if (mask_bw[i, j].any()):
-                I_rep[i, j, :] = sky_resize[i - r2, j - c2, :]
-    return I_rep
 
 def guideFilter(I, p, mask_edge, winSize, eps):  # input p,giude I
 
@@ -68,34 +49,18 @@ def guideFilter(I, p, mask_edge, winSize, eps):  # input p,giude I
     q = p.copy()
     sz = mask_edge.shape
     # edge=mask_edge.copy()
-    kernel = np.array([[0, 1, 0], [1, 1, 1], [0, 1, 0]], np.uint8)
+    kernel = np.ones((5, 5), np.uint8)
+    # kernel=np.array([[1,1,1,1,1],[1,1,1,1,1],[1,1,1,1,1]],np.uint8)
     edge = cv2.dilate(mask_edge, kernel)
 
-    # for i in range(sz[0]):
-    # 	for j in range(sz[1]):
-    # 		if (mask_edge[i,j].any()):
-    # 			if (i+1<sz[0]):
-    # 				edge[i+1,j]=1
-    # 			if (i+2<sz[0]):
-    # 				edge[i+2,j]=1
-    # 			if (j-1>-1):
-    # 				edge[i,j-1]=1
-    # 			if (j+1<sz[1]):
-    # 				edge[i,j+1]=1
-    # 			if (j-2>-1):
-    # 				edge[i,j-2]=1
-    # 			if (j+2<sz[1]):
-    # 				edge[i,j+2]=1
-    # edge[i+2,j]=1
-    # edge[i+3,j]=1
+    # edge8=edge*255
+    # edge8=edge8.astype(np.uint8)
+    # mask_edge8=mask_edge*255
+    # mask_edge8=mask_edge8.astype(np.uint8)
+    # cv2.imwrite('d:/MyLearning/DIP/Final_Project/Report/mask_edge.png',mask_edge8)
+    # cv2.imwrite('d:/MyLearning/DIP/Final_Project/Report/edge.png',edge8)
 
     q[edge == 1] = mean_a[edge == 1] * I[edge == 1] + mean_b[edge == 1]
-    # for i in range(sz[0]):
-    # 	for j in range(sz[1]):
-    # 		if (edge[i,j].any()):
-    # 			q[i,j] = mean_a[i,j]*I[i,j] + mean_b[i,j]
-
-    # q = mean_a*I + mean_b
 
     q = q * 255
     q[q > 255] = 255
@@ -104,31 +69,6 @@ def guideFilter(I, p, mask_edge, winSize, eps):  # input p,giude I
     return q
 
 def color_transfer(source, mask_bw, target, mode):
-    """
-    Transfers the color distribution from the source to the target
-    image using the mean and standard deviations of the L*a*b*
-    color space.
-
-    This implementation is (loosely) based on to the "Color Transfer
-    between Images" paper by Reinhard et al., 2001.
-
-    Parameters:
-    -------
-    source: NumPy array
-        OpenCV image in BGR color space (the source image)
-    target: NumPy array
-        OpenCV image in BGR color space (the target image)
-
-    Returns:
-    -------
-    transfer: NumPy array
-        OpenCV image (w, h, 3) NumPy array (uint8)
-    """
-
-    # convert the images from the RGB to L*ab* color space, being
-    # sure to utilizing the floating point data type (note: OpenCV
-    # expects floats to be 32-bit, so use that instead of 64-bit)
-
     source = cv2.cvtColor(source, cv2.COLOR_RGB2LAB).astype("float32")
     target = cv2.cvtColor(target, cv2.COLOR_RGB2LAB).astype("float32")
 
@@ -138,91 +78,44 @@ def color_transfer(source, mask_bw, target, mode):
         index = np.where(mask_bw == 0)
         index = np.array(index, dtype=int)
         sz = index.shape
-        # fl=[]
-        # fa=[]
-        # fb=[]
+
         fl = target[:, :, 0][mask_bw == 0]
         fa = target[:, :, 1][mask_bw == 0]
         fb = target[:, :, 2][mask_bw == 0]
 
-        # for i in range(sz[1]):
-        # 	x=index[0,i]
-        # 	y=index[1,i]
-        # 	fl.append(target[x,y,0])
-        # 	fa.append(target[x,y,1])
-        # 	fb.append(target[x,y,2])
-
         (lMeanTar_1, lStdTar_1) = (np.mean(fl), np.std(fl, ddof=1))
         (aMeanTar_1, aStdTar_1) = (np.mean(fa), np.std(fa, ddof=1))
         (bMeanTar_1, bStdTar_1) = (np.mean(fb), np.std(fb, ddof=1))
-        (lMeanTar_2, lStdTar_2, aMeanTar_2, aStdTar_2, bMeanTar_2, bStdTar_2) = image_stats(target)
+        (lMeanTar_2, lStdTar_2, aMeanTar_2, aStdTar_2, bMeanTar_2, bStdTar_2) = image_stats(source)
         # (lMeanSrc, lStdSrc, aMeanSrc, aStdSrc, bMeanSrc, bStdSrc) = image_stats(source)
 
-        l[mask_bw == 0] -= lMeanTar_2
-        a[mask_bw == 0] -= aMeanTar_2
-        b[mask_bw == 0] -= bMeanTar_2
+        l[mask_bw == 0] -= lMeanTar_1
+        a[mask_bw == 0] -= aMeanTar_1
+        b[mask_bw == 0] -= bMeanTar_1
 
-        l[mask_bw == 0] *= (lStdSrc / lStdTar_2)
-        a[mask_bw == 0] *= (lStdSrc / lStdTar_2)
-        b[mask_bw == 0] *= (lStdSrc / lStdTar_2)
+        alpha = 0.5
+        beta = 1 - alpha
 
-        l[mask_bw == 0] += lMeanSrc
-        a[mask_bw == 0] += aMeanSrc
-        b[mask_bw == 0] += bMeanSrc
+        l[mask_bw == 0] *= (alpha * lStdSrc + beta * lStdTar_1) / lStdTar_1
+        a[mask_bw == 0] *= (alpha * aStdSrc + beta * aStdTar_1) / aStdTar_1
+        b[mask_bw == 0] *= (alpha * bStdSrc + beta * bStdTar_1) / bStdTar_1
 
-    # mask_size=mask_bw.shape
-    # for i in range(mask_size[0]):
-    # 	for j in range(mask_size[1]):
-    # 		if mask_bw[i,j]==0:
+        l[mask_bw == 0] += alpha * lMeanSrc + beta * lMeanTar_1
+        a[mask_bw == 0] += alpha * aMeanSrc + beta * aMeanTar_1
+        b[mask_bw == 0] += alpha * bMeanSrc + beta * bMeanTar_1
 
-    # 			l[i,j] -= lMeanTar_2
-    # 			a[i,j] -= aMeanTar_2
-    # 			b[i,j] -= bMeanTar_2
-    # 			# scale by the standard deviations
-    # 			l[i,j] = (lStdSrc / lStdTar_2) * l[i,j]
-    # 			a[i,j] = (lStdSrc / lStdTar_2) * a[i,j]
-    # 			b[i,j] = (lStdSrc / lStdTar_2) * b[i,j]
-    # 			# add in the source mean
-    # 			l[i,j] += lMeanSrc
-    # 			a[i,j] += aMeanSrc
-    # 			b[i,j] += bMeanSrc
-    # else:
-    # 	# (lMeanTar, lStdTar, aMeanTar, aStdTar, bMeanTar, bStdTar) = image_stats(target)
-    # 	# (lMeanSrc, lStdSrc, aMeanSrc, aStdSrc, bMeanSrc, bStdSrc) = image_stats(source)
-
-    # 	l[i,j] -= lMeanTar_2
-    # 	a[i,j] -= aMeanTar_2
-    # 	b[i,j] -= bMeanTar_2
-
-    # 	# scale by the standard deviations
-    # 	l[i,j] = (lStdTar_2 / lStdSrc) * l[i,j]
-    # 	a[i,j] = (aStdTar_2 / aStdSrc) * a[i,j]
-    # 	b[i,j] = (bStdTar_2 / bStdSrc) * b[i,j]
-
-    # # 	# add in the source mean
-    # # 	# l[i,j] += lMeanSrc
-    # # 	# a[i,j] += aMeanSrc
-    # # 	# b[i,j] += bMeanSrc
     else:
         (lMeanTar_2, lStdTar_2, aMeanTar_2, aStdTar_2, bMeanTar_2, bStdTar_2) = image_stats(target)
         l -= lMeanTar_2
         a -= aMeanTar_2
         b -= bMeanTar_2
 
-        # scale by the standard deviations
-        # l = (lStdTar_2 / lStdSrc) * l
-        # a = (aStdTar_2 / aStdSrc) * a
-        # b = (bStdTar_2 / bStdSrc) * b
         l = (lStdSrc / lStdTar_2) * l
         a = (aStdSrc / aStdTar_2) * a
         b = (bStdSrc / bStdTar_2) * b
         l += lMeanSrc
         a += aMeanSrc
         b += bMeanSrc
-
-    # l += lMeanSrc
-    # a += aMeanSrc
-    # b += bMeanSrc
 
     # clip the pixel intensities to [0, 255] if they fall outside
     # this range
@@ -274,7 +167,7 @@ def photo_infer(src, net):
     """
     Args:
         src:
-
+        net：
     Returns: pred mask
     """
     # checkpoint_load = 'tools/checkpoint_199_epoch.pkl'
@@ -284,20 +177,19 @@ def photo_infer(src, net):
     in_size = 224
     h, w, c = src.shape
     # print(h, w)
-    img_hwc = cv2.resize(src, (in_size, in_size), interpolation=cv2.INTER_LINEAR)
+    img_hwc = cv2.resize(src, (in_size, in_size), interpolation=cv2.INTER_AREA)
     img_chw = img_hwc.transpose((2, 0, 1))
     img_chw = torch.from_numpy(img_chw).float()
     # net = UNet(in_channels=3, out_channels=1, init_features=32)  # init_features is 64 in stander uent
     # net.to(device)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    net.eval()
     with torch.no_grad():
         inputs = img_chw.to(device).unsqueeze(0)
         outputs = net(inputs)
-        mask_bw = (outputs.squeeze().ge(mask_thres).cpu().data.numpy()).astype("uint8")
-    mask_bw = cv2.resize(mask_bw, (w, h))
-    print("Input's shape is ", mask_bw.shape)
-    return mask_bw
+        mask = (outputs.ge(mask_thres).cpu().data.numpy() * 255).squeeze().astype("uint8")
+    mask = cv2.resize(mask, (w, h))
+    # print("Input's shape is ", mask.shape)
+    return mask
 
 def photo_replace(src, tgt, net):
     """
@@ -308,13 +200,31 @@ def photo_replace(src, tgt, net):
     Returns: results
 
     """
-    mask_bw = photo_infer(src, net)
-    I_rep = replace_sky(src, mask_bw, tgt)
-    print('color transferring...')
-    transfer = color_transfer(tgt, mask_bw, I_rep, 1)
-    mask_edge = cv2.Canny(mask_bw, 100, 200)
+    mask = photo_infer(src, net)
+    I_rep = replace_sky(src, mask, tgt)
+    # print('color transferring...')
+    transfer = color_transfer(tgt, mask, I_rep, 1)
+    mask_edge = cv2.Canny(mask, 100, 200)
     mask_edge_hwc = cv2.merge([mask_edge, mask_edge, mask_edge])
-    print('guide filtering...')
+    # print('guide filtering...')
+    result = guideFilter(src, transfer, mask_edge_hwc, (8, 8), 0.01)
+    return result
+
+def photo_improve(src, mask, tgt):
+    """
+
+    Args:
+        srcname:
+        tgtname:
+    Returns: results
+
+    """
+    I_rep = replace_sky(src, mask, tgt)
+    # print('color transferring...')
+    transfer = color_transfer(tgt, mask, I_rep, 1)
+    mask_edge = cv2.Canny(mask, 100, 200)
+    mask_edge_hwc = cv2.merge([mask_edge, mask_edge, mask_edge])
+    # print('guide filtering...')
     result = guideFilter(src, transfer, mask_edge_hwc, (8, 8), 0.01)
     return result
 
@@ -371,13 +281,46 @@ def video_infer(img_pil):
 
     return original_img, mask_pred_gray
 
-def video_replace(img, mask_bw, sky):
+def video_replace(img, mask, sky):
     sz = img.shape
     sky_resize = cv2.resize(sky, (sz[1], sz[0]))
-    # mask_bw=mask_bw/255
-    mask_sky = cv2.merge([mask_bw, mask_bw, mask_bw])
+    # mask=mask/255
+    mask_sky = cv2.merge([mask, mask, mask])
     mask_sky = mask_sky / 255
     mask_img = 1 - mask_sky
     I_rep = img * mask_img + sky_resize * mask_sky
     I_rep = I_rep.astype(np.uint8)
+    return I_rep
+
+# def replace_sky(img, mask, sky):
+#     r1, c1, r2, c2 = find_sky_rect(mask)
+#
+#     height = r1 - r2 + 1
+#     width = c1 - c2 + 1
+#
+#     sky_resize = cv2.resize(sky, (width, height), cv2.INTER_AREA)
+#
+#     I_rep = img.copy()
+#     sz = img.shape
+#     flag = np.sum(mask, axis=1)
+#     for i in range(r2, sz[0]):
+#         if flag[i] == 0:
+#             continue
+#         for j in range(c2, sz[1]):
+#             if (mask[i, j] != 0):
+#                 I_rep[i, j, :] = sky_resize[i - r2, j - c2, :]
+#     return I_rep
+
+def replace_sky(img, mask, sky):
+    r1, c1, r2, c2 = find_sky_rect(mask)
+
+    height = r1 - r2 + 1
+    width = c1 - c2 + 1
+
+    sky_resize = cv2.resize(sky, (width, height), cv2.INTER_AREA)
+
+    I_rep = img.copy()
+    index = mask[r2:r1 + 1, c2:c1 + 1] != 0
+    I_rep[r2:r1 + 1, c2:c1 + 1][index] = sky_resize[index]
+
     return I_rep
