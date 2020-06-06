@@ -8,8 +8,8 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-
 class Ui_MainWindow(object):
+
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.setWindowModality(QtCore.Qt.ApplicationModal)
@@ -137,7 +137,7 @@ class Ui_MainWindow(object):
         self.modetilte.setFocusPolicy(QtCore.Qt.NoFocus)
         self.modetilte.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.modetilte.setLayoutDirection(QtCore.Qt.LeftToRight)
-        self.modetilte.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.modetilte.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter)
         self.modetilte.setObjectName("modetilte")
         self.formLayout.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.modetilte)
         self.line = QtWidgets.QFrame(self.formLayoutWidget)
@@ -227,11 +227,12 @@ class Ui_MainWindow(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tap), _translate("MainWindow", "Display"))
         self.groupBox.setTitle(_translate("MainWindow", "Setting"))
         self.groupBox_3.setTitle(_translate("MainWindow", "Console"))
-        self.textBrowser.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'SimSun\'; font-size:11pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:10pt;\">The sky full of magic.  </span></p></body></html>"))
+        self.textBrowser.setHtml(_translate("MainWindow",
+                                            "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                            "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+                                            "p, li { white-space: pre-wrap; }\n"
+                                            "</style></head><body style=\" font-family:\'SimSun\'; font-size:11pt; font-weight:400; font-style:normal;\">\n"
+                                            "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:10pt;\">The sky full of magic.  </span></p></body></html>"))
         self.groupBox_2.setTitle(_translate("MainWindow", "Command"))
         self.pushButton.setText(_translate("MainWindow", "Load Source"))
         self.pushButton_2.setText(_translate("MainWindow", "Load Target"))
@@ -251,5 +252,3 @@ class Ui_MainWindow(object):
         self.actionTarget_Sky.setText(_translate("MainWindow", "Target Sky"))
         self.actionLoad_Source_video.setText(_translate("MainWindow", "Source video"))
         self.actionLoad_Target_Sky.setText(_translate("MainWindow", "Target Sky"))
-
-
