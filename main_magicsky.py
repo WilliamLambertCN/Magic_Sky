@@ -1,8 +1,8 @@
 import sys
 from PyQt5 import QtWidgets, QtGui, QtCore
-from PyQt5 import QtGui
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import QEventLoop, QTimer, QUrl, QThread
+from PyQt5.QtCore import QEventLoop, QTimer, QUrl, QThread, pyqtSignal, Qt
+from PyQt5.QtGui import QPixmap, QImage
 # from PyQt5.QtMultimedia import *
 # from PyQt5.QtMultimediaWidgets import QVideoWidget
 import time
@@ -157,14 +157,76 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def play_input_video(self):
         assert self.modetext.currentText() == 'Video'
-        print('Play input Video')
+        print('Play input video')
+        global playmode
+        playmode = "Input"
+        global videoName  # 在这里设置全局变量以便在线程中使用
+        videoName = self.srcname
+        # cap = cv2.VideoCapture(str(videoName))
+        self.th = Thread(self)
+        self.th.changeSrcPixmap.connect(self.setInputImage)
+        self.th.start()
 
     def play_result_video(self):
-        print('Show result')
+        assert self.modetext.currentText() == 'Video'
+        print('Play result video')
+        global playmode
+        playmode = "Result"
+        global videoName  # 在这里设置全局变量以便在线程中使用
+        videoName = "temp/result.mp4"
+        # cap = cv2.VideoCapture(str(videoName))
+        self.th = Thread(self)
+        self.th.changeResPixmap.connect(self.setResImage)
+        self.th.start()
+
+    def setResImage(self, Qframe):
+        pix = QtGui.QPixmap.fromImage(Qframe)
+        item = QGraphicsPixmapItem(pix)
+        scence = QGraphicsScene()
+        scale = min(self.resultView.height() / (1.02 * pix.height()),
+                    self.resultView.width() / (1.02 * pix.width()))
+        item.setScale(scale)
+        scence.addItem(item)
+        self.resultView.setScene(scence)
+
+    def setInputImage(self, Qframe):
+        pix = QtGui.QPixmap.fromImage(Qframe)
+        item = QGraphicsPixmapItem(pix)
+        scence = QGraphicsScene()
+        scale = min(self.sourceView.height() / (1.02 * pix.height()),
+                    self.sourceView.width() / (1.02 * pix.width()))
+        item.setScale(scale)
+        scence.addItem(item)
+        self.sourceView.setScene(scence)
 
     def save_result(self):
         print('Saving result.')
         print("Saved result.")
+
+class Thread(QThread):  # 采用线程来播放视频
+
+    changeResPixmap = pyqtSignal(QtGui.QImage)
+    changeSrcPixmap = pyqtSignal(QtGui.QImage)
+
+    def run(self):
+        assert playmode in ["Input", "Result"]
+        cap = cv2.VideoCapture(videoName)
+        fps = cap.get(cv2.CAP_PROP_FPS)
+        print(videoName)
+        while (cap.isOpened() == True):
+            ret, frame = cap.read()
+            if ret:
+                rgbImage = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                convertToQtFormat = QtGui.QImage(rgbImage.data, rgbImage.shape[1], rgbImage.shape[0],
+                                                 QImage.Format_RGB888)  # 在这里可以对每帧图像进行处理，
+                # p = convertToQtFormat.scaled(640, 480, Qt.KeepAspectRatio)
+                if playmode == "Input":
+                    self.changeSrcPixmap.emit(convertToQtFormat)
+                elif playmode == "Result":
+                    self.changeResPixmap.emit(convertToQtFormat)
+                time.sleep(1 / (1.1 * fps))  # 控制视频播放的速度
+            else:
+                break
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)

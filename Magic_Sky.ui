@@ -6,21 +6,21 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1163</width>
-    <height>855</height>
+    <width>1272</width>
+    <height>917</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Magic Sky (V1.1)</string>
+   <string>Magic Sky (V1.2)</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QTabWidget" name="tabWidget">
     <property name="geometry">
      <rect>
-      <x>540</x>
-      <y>40</y>
-      <width>601</width>
-      <height>801</height>
+      <x>530</x>
+      <y>20</y>
+      <width>731</width>
+      <height>871</height>
      </rect>
     </property>
     <property name="currentIndex">
@@ -38,8 +38,8 @@
        <rect>
         <x>20</x>
         <y>20</y>
-        <width>561</width>
-        <height>311</height>
+        <width>701</width>
+        <height>361</height>
        </rect>
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout">
@@ -53,8 +53,8 @@
            <rect>
             <x>11</x>
             <y>20</y>
-            <width>261</width>
-            <height>281</height>
+            <width>331</width>
+            <height>331</height>
            </rect>
           </property>
          </widget>
@@ -70,8 +70,8 @@
            <rect>
             <x>10</x>
             <y>20</y>
-            <width>261</width>
-            <height>281</height>
+            <width>331</width>
+            <height>331</height>
            </rect>
           </property>
          </widget>
@@ -82,10 +82,10 @@
      <widget class="QGroupBox" name="groupBox_6">
       <property name="geometry">
        <rect>
-        <x>20</x>
-        <y>340</y>
-        <width>561</width>
-        <height>421</height>
+        <x>10</x>
+        <y>390</y>
+        <width>711</width>
+        <height>441</height>
        </rect>
       </property>
       <property name="title">
@@ -96,8 +96,8 @@
         <rect>
          <x>12</x>
          <y>20</y>
-         <width>541</width>
-         <height>391</height>
+         <width>691</width>
+         <height>421</height>
         </rect>
        </property>
       </widget>
@@ -107,8 +107,8 @@
    <widget class="QFrame" name="frame">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>104</y>
+      <x>40</x>
+      <y>150</y>
       <width>481</width>
       <height>721</height>
      </rect>
@@ -131,6 +131,13 @@
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
        <widget class="QGroupBox" name="groupBox">
+        <property name="font">
+         <font>
+          <pointsize>11</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="title">
          <string>Setting</string>
         </property>
@@ -138,7 +145,7 @@
          <property name="geometry">
           <rect>
            <x>20</x>
-           <y>331</y>
+           <y>350</y>
            <width>411</width>
            <height>361</height>
           </rect>
@@ -161,7 +168,7 @@
          <property name="geometry">
           <rect>
            <x>20</x>
-           <y>173</y>
+           <y>190</y>
            <width>411</width>
            <height>131</height>
           </rect>
@@ -218,7 +225,7 @@
          <property name="geometry">
           <rect>
            <x>20</x>
-           <y>37</y>
+           <y>50</y>
            <width>411</width>
            <height>111</height>
           </rect>
@@ -266,6 +273,13 @@
           </item>
           <item row="3" column="1">
            <widget class="QLabel" name="sourcetext">
+            <property name="font">
+             <font>
+              <pointsize>11</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
             <property name="text">
              <string>None</string>
             </property>
@@ -280,6 +294,13 @@
           </item>
           <item row="4" column="1">
            <widget class="QLabel" name="targettext">
+            <property name="font">
+             <font>
+              <pointsize>11</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
             <property name="text">
              <string>None</string>
             </property>
@@ -312,8 +333,8 @@
    <widget class="QLabel" name="Slogan">
     <property name="geometry">
      <rect>
-      <x>27</x>
-      <y>16</y>
+      <x>30</x>
+      <y>40</y>
       <width>481</width>
       <height>81</height>
      </rect>
@@ -321,12 +342,15 @@
     <property name="font">
      <font>
       <family>Monotype Corsiva</family>
-      <pointsize>26</pointsize>
+      <pointsize>32</pointsize>
       <italic>true</italic>
      </font>
     </property>
     <property name="text">
      <string>The sky full of magic</string>
+    </property>
+    <property name="textFormat">
+     <enum>Qt::RichText</enum>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
