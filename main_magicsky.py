@@ -1,3 +1,5 @@
+import os
+import shutil
 import sys
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import *
@@ -53,7 +55,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         if self.checkpoint_load is not None:
             checkpoint = torch.load(self.checkpoint_load)
             self.net.load_state_dict(checkpoint['model_state_dict'])
-            print('\nWelcome to use Magic Sky Software. \nPytorch model loads checkpoint from %s' % self.checkpoint_load)
+            print(
+                    '\nWelcome to use Magic Sky Software. \nPytorch model loads checkpoint from %s' % self.checkpoint_load)
         else:
             raise Exception("\nPlease specify the checkpoint")
         set_seed()  # 设置随机种子
@@ -202,7 +205,25 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def save_result(self):
         print('Saving result.')
-        print("Saved result.")
+        if self.modetext.currentText() == 'Photo':
+            file_filter = r"(*.jpg)"
+        else:
+            file_filter = r"(*.mp4)"
+        save_filename, filetype = QFileDialog.getSaveFileName(self, caption="Save result to: ", directory='results',
+                                                              filter=file_filter)
+        print(save_filename, ' ', filetype, ' ')
+        if self.modetext.currentText() == 'Photo':
+            self.mycopyfile("temp/results.jpg", save_filename)
+        else:
+            self.mycopyfile("temp/results.mp4", save_filename)
+
+    def mycopyfile(self, srcfile, dstfile):
+        assert os.path.isfile(srcfile)
+        fpath, fname = os.path.split(dstfile)  # 分离文件名和路径
+        if not os.path.exists(fpath):
+            os.makedirs(fpath)  # 创建路径
+        shutil.copyfile(srcfile, dstfile)  # 复制文件
+        print("Results saved -> %s" % (dstfile))
 
 class Thread(QThread):  # 采用线程来播放视频
 
