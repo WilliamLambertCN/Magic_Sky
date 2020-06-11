@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
+
 sys.path.append('.')
 import random
 import numpy as np
@@ -27,14 +28,17 @@ class SkyDataset(Dataset):
 
     def __getitem__(self, index):
 
+        rotate_angle = random.choice([0, 90, 180, 270])
         path_label = self.label_path_list[index]
         path_img = self.img_path_list[index]
 
         img_pil = Image.open(path_img).convert('RGB')
         img_pil = img_pil.resize((self.in_size, self.in_size), Image.BILINEAR)
+        img_pil = img_pil.rotate(rotate_angle)
 
         label_pil = Image.open(path_label).convert('L')
         label_pil = label_pil.resize((self.in_size, self.in_size), Image.NEAREST)
+        label_pil = label_pil.rotate(rotate_angle)
 
         if self.transform is not None:
             img_pil = self.transform(img_pil)

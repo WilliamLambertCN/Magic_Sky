@@ -18,6 +18,18 @@ def find_sky_rect(mask):
     return (r1, c1, r2, c2)
 
 def guideFilter(I, p, mask_edge, winSize, eps):  # input p,giude I
+    """
+
+    Args:
+        I:
+        p:
+        mask_edge:
+        winSize:
+        eps:
+
+    Returns:
+
+    """
 
     I = I / 255.0
     p = p / 255.0
@@ -191,7 +203,7 @@ def photo_infer(src, net):
     # print("Input's shape is ", mask.shape)
     return mask
 
-def photo_replace(src, tgt, net):
+def photo_replace(src, tgt, net, mode=0):
     """
 
     Args:
@@ -200,8 +212,12 @@ def photo_replace(src, tgt, net):
     Returns: results
 
     """
+
     mask = photo_infer(src, net)
-    I_rep = replace_sky(src, mask, tgt)
+    if mode == 0:
+        I_rep = replace_sky(src, mask, tgt)
+    else:
+        I_rep = video_replace(src, mask, tgt)
     # print('color transferring...')
     transfer = color_transfer(tgt, mask, I_rep, 1)
     mask_edge = cv2.Canny(mask, 100, 200)
@@ -219,7 +235,7 @@ def photo_improve(src, mask, tgt):
     Returns: results
 
     """
-    I_rep = replace_sky(src, mask, tgt)
+    I_rep = photo_replace(src, mask, tgt)
     # print('color transferring...')
     transfer = color_transfer(tgt, mask, I_rep, 1)
     mask_edge = cv2.Canny(mask, 100, 200)
@@ -282,8 +298,8 @@ def video_infer(img_pil):
     return original_img, mask_pred_gray
 
 def video_replace(img, mask, sky):
-    sz = img.shape
-    sky_resize = cv2.resize(sky, (sz[1], sz[0]))
+    (h, w, c) = img.shape
+    sky_resize = cv2.resize(sky, (w, h))
     # mask=mask/255
     mask_sky = cv2.merge([mask, mask, mask])
     mask_sky = mask_sky / 255
@@ -291,25 +307,6 @@ def video_replace(img, mask, sky):
     I_rep = img * mask_img + sky_resize * mask_sky
     I_rep = I_rep.astype(np.uint8)
     return I_rep
-
-# def replace_sky(img, mask, sky):
-#     r1, c1, r2, c2 = find_sky_rect(mask)
-#
-#     height = r1 - r2 + 1
-#     width = c1 - c2 + 1
-#
-#     sky_resize = cv2.resize(sky, (width, height), cv2.INTER_AREA)
-#
-#     I_rep = img.copy()
-#     sz = img.shape
-#     flag = np.sum(mask, axis=1)
-#     for i in range(r2, sz[0]):
-#         if flag[i] == 0:
-#             continue
-#         for j in range(c2, sz[1]):
-#             if (mask[i, j] != 0):
-#                 I_rep[i, j, :] = sky_resize[i - r2, j - c2, :]
-#     return I_rep
 
 def replace_sky(img, mask, sky):
     r1, c1, r2, c2 = find_sky_rect(mask)
