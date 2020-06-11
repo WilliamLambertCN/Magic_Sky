@@ -45,11 +45,11 @@ if __name__ == "__main__":
     mask_thres = 0.5
     # Tensorboard计数
     iter_count = 0
-    logdir = './test4_lovasz_1e-2'
+    logdir = './test6_lovasz_1e-2'
     writer = SummaryWriter(log_dir=logdir)
     ##########预训练与否#############
     pretrained = True
-    checkpoint_load = 'test3_lovasz_1e-2/checkpoint_99_epoch.pkl'
+    checkpoint_load = 'test5_lovasz_1e-2/bestdice_min_49.89%_checkpoint_37_epoch.pkl'
 
     trainset_path = os.path.join("dataset/trainset")
     testset_path = os.path.join("dataset/testset")
@@ -100,7 +100,8 @@ if __name__ == "__main__":
     valid_curve = list()
     train_dice_curve = list()
     valid_dice_curve = list()
-    for epoch in range(start_epoch, max_epoch):
+    best_valid = 0
+    for epoch in range(55, max_epoch):
 
         train_loss_total = 0.
         train_dice_total = 0.
@@ -149,8 +150,8 @@ if __name__ == "__main__":
         if (epoch + 1) % val_interval == 0:
 
             net.eval()
-            valid_loss_total = 0.
-            valid_dice_total = 0.
+            valid_loss_total = []
+            valid_dice_total = []
 
             with torch.no_grad():
                 for j, (inputs, labels) in enumerate(valid_loader):
@@ -160,20 +161,32 @@ if __name__ == "__main__":
                     outputs = net(inputs)
                     loss = loss_fn(outputs, labels)
 
-                    valid_loss_total += loss.item()
+                    valid_loss_total.append(loss.item())
 
                     valid_dice = compute_dice(outputs.ge(mask_thres).cpu().data, labels.cpu())
-                    valid_dice_total += valid_dice
+                    valid_dice_total.append(valid_dice)
 
-                valid_loss_mean = valid_loss_total / len(valid_loader)
-                valid_dice_mean = valid_dice_total / len(valid_loader)
+                valid_loss_mean = sum(valid_loss_total) / len(valid_loader)
+                valid_dice_mean = sum(valid_dice_total) / len(valid_loader)
                 valid_curve.append(valid_loss_mean)
                 valid_dice_curve.append(valid_dice_mean)
+                valid_dice_min = min(valid_dice_total)
 
                 writer.add_scalar("Valid Loss", valid_loss_mean, iter_count)
                 writer.add_scalar("Valid Dice", valid_dice_mean, iter_count)
+                writer.add_scalar("Valid Dice Min", valid_dice_min, iter_count)
                 print("Valid:\t Epoch[{:0>3}/{:0>3}] mean_loss: {:.4f} dice_mean: {:.4f}".format(
                         epoch, max_epoch, valid_loss_mean, valid_dice_mean))
+
+                if valid_dice_min > best_valid:
+                    best_valid = valid_dice_min
+                    checkpoint = {"model_state_dict": net.state_dict(),
+                                  "optimizer_state_dict": optimizer.state_dict(),
+                                  "epoch": epoch}
+                    path_checkpoint = os.path.join(logdir,
+                                                   "bestdice_min_%.2f%%_checkpoint_%d_epoch.pkl" % (
+                                                           100 * best_valid, epoch))
+                    torch.save(checkpoint, path_checkpoint)
 
         for name, param in net.named_parameters():
             writer.add_histogram(name + '_grad', param.grad, epoch)

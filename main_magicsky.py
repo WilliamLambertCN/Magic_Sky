@@ -47,6 +47,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.pushButton_5.clicked.connect(self.save_result)
         self.pushButton_skyrpl.clicked.connect(self.skyrpl)
 
+        # self.checkpoint_load = 'test6_lovasz_1e-2/checkpoint_19_epoch.pkl'
+        # self.checkpoint_load = 'test6_lovasz_1e-2/bestdice_min_38.57%_checkpoint_55_epoch.pkl'
+        # self.checkpoint_load = 'test4_lovasz_1e-2/bestdice_min_47.90%_checkpoint_35_epoch.pkl'
         self.checkpoint_load = 'tools/checkpoint_199_epoch.pkl'
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.net = UNet(in_channels=3, out_channels=1, init_features=32)  # init_features is 64 in stander uent
@@ -144,7 +147,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             for index in range(int(frameCount)):
                 success, frame = self.cap.read()
                 if success:
-                    result = photo_replace(frame[..., ::-1], self.tgt, self.net)
+                    result = photo_replace(frame[..., ::-1], self.tgt, self.net, 1)
                     if index == 0:
                         cv2.imwrite('temp/frame1.jpg', frame)
                         cv2.imwrite('temp/result1.jpg', result[..., ::-1])
@@ -215,10 +218,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         if self.modetext.currentText() == 'Photo':
             self.mycopyfile("temp/results.jpg", save_filename)
         else:
-            self.mycopyfile("temp/results.mp4", save_filename)
+            self.mycopyfile("temp/result.mp4", save_filename)
 
     def mycopyfile(self, srcfile, dstfile):
-        assert os.path.isfile(srcfile)
+        assert srcfile.endswith(('mp4', 'jpg'))
         fpath, fname = os.path.split(dstfile)  # 分离文件名和路径
         if not os.path.exists(fpath):
             os.makedirs(fpath)  # 创建路径
