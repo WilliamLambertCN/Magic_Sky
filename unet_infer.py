@@ -29,6 +29,16 @@ def compute_dice(y_pred, y_true):
 
 ##########################################################
 def unet_infer(demo_path_img, demo, save_result):
+    """
+
+    Args:
+        demo_path_img:
+        demo:
+        save_result:
+
+    Returns:
+
+    """
     # demo = True
     # demo_path_img = 'd:/MyLearning/DIP/Final_Project/Unet/Demo/1.jpg'
     # save_result = True

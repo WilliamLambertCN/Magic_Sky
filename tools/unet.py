@@ -6,6 +6,13 @@ import torch.nn as nn
 class UNet(nn.Module):
 
     def __init__(self, in_channels=3, out_channels=1, init_features=32):
+        """
+
+        Args:
+            in_channels:
+            out_channels:
+            init_features:
+        """
         super(UNet, self).__init__()
 
         features = init_features
@@ -42,6 +49,14 @@ class UNet(nn.Module):
         )
 
     def forward(self, x):
+        """
+
+        Args:
+            x:
+
+        Returns:
+
+        """
         enc1 = self.encoder1(x)
         enc2 = self.encoder2(self.pool1(enc1))
         enc3 = self.encoder3(self.pool2(enc2))
@@ -69,6 +84,16 @@ class UNet(nn.Module):
 
     @staticmethod
     def _block(in_channels, features, name):
+        """
+
+        Args:
+            in_channels:
+            features:
+            name:
+
+        Returns:
+
+        """
         return nn.Sequential(
             OrderedDict(
                 [
