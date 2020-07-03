@@ -7,6 +7,14 @@ from tools.unet import UNet
 import cv2
 
 def find_sky_rect(mask):
+    """
+
+    Args:
+        mask:
+
+    Returns:
+
+    """
     index = np.where(mask != 0)
     index = np.array(index, dtype=int)
     x = index[0, :]
@@ -81,6 +89,17 @@ def guideFilter(I, p, mask_edge, winSize, eps):  # input p,giude I
     return q
 
 def color_transfer(source, mask_bw, target, mode):
+    """
+
+    Args:
+        source:
+        mask_bw:
+        target:
+        mode:
+
+    Returns:
+
+    """
     source = cv2.cvtColor(source, cv2.COLOR_RGB2LAB).astype("float32")
     target = cv2.cvtColor(target, cv2.COLOR_RGB2LAB).astype("float32")
 
@@ -246,6 +265,14 @@ def photo_improve(src, mask, tgt):
 
 ##########################################################
 def video_infer(img_pil):
+    """
+
+    Args:
+        img_pil:
+
+    Returns:
+
+    """
     checkpoint_load = 'tools/checkpoint_199_epoch.pkl'
 
     vis_num = 1000
@@ -298,8 +325,18 @@ def video_infer(img_pil):
     return original_img, mask_pred_gray
 
 def video_replace(img, mask, sky):
+    """
+
+    Args:
+        img:
+        mask:
+        sky:
+
+    Returns:
+
+    """
     (h, w, c) = img.shape
-    sky_resize = cv2.resize(sky, (w, h))
+    sky_resize = cv2.resize(sky, (w, h), cv2.INTER_AREA)
     # mask=mask/255
     mask_sky = cv2.merge([mask, mask, mask])
     mask_sky = mask_sky / 255
@@ -309,6 +346,16 @@ def video_replace(img, mask, sky):
     return I_rep
 
 def replace_sky(img, mask, sky):
+    """
+
+    Args:
+        img:
+        mask:
+        sky:
+
+    Returns:
+
+    """
     r1, c1, r2, c2 = find_sky_rect(mask)
 
     height = r1 - r2 + 1

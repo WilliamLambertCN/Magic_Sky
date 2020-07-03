@@ -17,6 +17,13 @@ set_seed()
 class SkyDataset(Dataset):
 
     def __init__(self, data_dir, transform=None, in_size=224):
+        """
+
+        Args:
+            data_dir:
+            transform:
+            in_size:
+        """
         super(SkyDataset, self).__init__()
         self.data_dir = data_dir
         self.transform = transform
@@ -27,7 +34,14 @@ class SkyDataset(Dataset):
         self._get_img_path()
 
     def __getitem__(self, index):
+        """
 
+        Args:
+            index:
+
+        Returns:
+
+        """
         rotate_angle = random.choice([0, 90, 180, 270])
         path_label = self.label_path_list[index]
         path_img = self.img_path_list[index]
@@ -59,10 +73,19 @@ class SkyDataset(Dataset):
         return img_chw_tensor, label_chw_tensor
 
     def __len__(self):
+        """
+
+        Returns:
+
+        """
         return len(self.label_path_list)
 
     def _get_img_path(self):
+        """
 
+        Returns:
+
+        """
         img_list = glob(self.data_dir + '/image/*')
         label_list = glob(self.data_dir + '/mask/*')
         if len(label_list) == 0:

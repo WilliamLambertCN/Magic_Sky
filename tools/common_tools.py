@@ -35,6 +35,14 @@ def transform_invert(img_, transform_train):
 
 
 def set_seed(seed=1):
+    """
+
+    Args:
+        seed:
+
+    Returns:
+
+    """
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
@@ -42,6 +50,14 @@ def set_seed(seed=1):
 
 
 def initialize_weights(net):
+    """
+
+    Args:
+        net:
+
+    Returns:
+
+    """
     for m in net.modules():
         if isinstance(m, nn.Conv2d):
             nn.init.kaiming_uniform_(m.weight.data)

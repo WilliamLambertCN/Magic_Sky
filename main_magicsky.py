@@ -91,7 +91,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.src_h, self.src_w, self.src_c = self.src.shape
             self.scene_show(self.srcname, self.sourceView)
         elif self.modetext.currentText() == 'Video' and (self.srcname != ''):
-            self.srcname
+            cap = cv2.VideoCapture(self.srcname)
+            success, frame = cap.read()
+            assert success
+            cv2.imwrite('temp/frame1.jpg', frame)
+            cap.release()
+            self.scene_show('temp/frame1.jpg', self.sourceView)
 
     def load_target(self):
         print('Loading target file')
