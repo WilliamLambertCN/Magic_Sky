@@ -3,6 +3,7 @@ import os
 import sys
 
 sys.path.append('.')
+import cv2
 import random
 import numpy as np
 import torch
@@ -46,7 +47,10 @@ class SkyDataset(Dataset):
         path_label = self.label_path_list[index]
         path_img = self.img_path_list[index]
 
-        img_pil = Image.open(path_img).convert('RGB')
+        img_pil = Image.open(path_img).convert('CMYK')
+        # npy_BGR_img_pil = np.asarray(img_pil)[..., ::-1]
+        # npy_hsv_img_pil = cv2.cvtColor(npy_BGR_img_pil, cv2.COLOR_BGR2HSV)
+        # img_pil = Image.fromarray(npy_hsv_img_pil)
         img_pil = img_pil.resize((self.in_size, self.in_size), Image.BILINEAR)
         img_pil = img_pil.rotate(rotate_angle)
 

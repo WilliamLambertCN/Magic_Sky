@@ -45,10 +45,10 @@ if __name__ == "__main__":
     mask_thres = 0.5
     # Tensorboard计数
     iter_count = 0
-    logdir = './test6_lovasz_1e-2'
+    logdir = './test7_hsv_lovasz_1e-2'
     writer = SummaryWriter(log_dir=logdir)
     ##########预训练与否#############
-    pretrained = True
+    pretrained = False
     checkpoint_load = 'test5_lovasz_1e-2/bestdice_min_49.89%_checkpoint_37_epoch.pkl'
 
     trainset_path = os.path.join("dataset/trainset")
@@ -101,7 +101,7 @@ if __name__ == "__main__":
     train_dice_curve = list()
     valid_dice_curve = list()
     best_valid = 0
-    for epoch in range(55, max_epoch):
+    for epoch in range(0, max_epoch):
 
         train_loss_total = 0.
         train_dice_total = 0.
