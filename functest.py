@@ -22,7 +22,7 @@ import func
 import unet_infer as unet
 
 # img_num=str(5)
-# img_path='d:/projects/DIP/Final_Project/Unet/Demo/'+img_num+'.png'
+# img_path='./project/Unet/Demo/'+img_num+'.png'
 # # demo_img = Image.open(img_path).convert('RGB')
 # demo_img = Image.open(img_path)
 # img_hwc,mask_pred_gray=func.infer(demo_img)

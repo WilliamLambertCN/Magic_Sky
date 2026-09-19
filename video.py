@@ -65,7 +65,7 @@ while index < 0.1*frameCount:
     mask_edge_hwc = cv2.merge([mask_edge, mask_edge, mask_edge])
     frame_cv2_out = func.guideFilter(img, transfer, mask_edge_hwc, (8, 8), 0.01)
     frame = cv2.cvtColor(np.asarray(frame_cv2_out), cv2.COLOR_RGB2BGR)  # PIL.image转opencv
-    # cv2.imwrite('d:/projects/DIP/Final_Project/Unet/Demo/' + 'frame_' + str(index) + '.png', frame) #存储为图像,保存名为 文件夹名_数字（第几个文件）.jpg
+    # cv2.imwrite('./project/Unet/Demo/' + 'frame_' + str(index) + '.png', frame) #存储为图像,保存名为 文件夹名_数字（第几个文件）.jpg
     # frame = cv2.cvtColor(np.asarray(frame_pil),cv2.COLOR_RGB2BGR) #PIL.image转opencv
     print('filter:', time.time() - tic)
 

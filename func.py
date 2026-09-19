@@ -77,8 +77,8 @@ def guideFilter(I, p, mask_edge, winSize, eps):  # input p,giude I
     # edge8=edge8.astype(np.uint8)
     # mask_edge8=mask_edge*255
     # mask_edge8=mask_edge8.astype(np.uint8)
-    # cv2.imwrite('d:/projects/DIP/Final_Project/Report/mask_edge.png',mask_edge8)
-    # cv2.imwrite('d:/projects/DIP/Final_Project/Report/edge.png',edge8)
+    # cv2.imwrite('./project/Report/mask_edge.png',mask_edge8)
+    # cv2.imwrite('./project/Report/edge.png',edge8)
 
     q[edge == 1] = mean_a[edge == 1] * I[edge == 1] + mean_b[edge == 1]
 

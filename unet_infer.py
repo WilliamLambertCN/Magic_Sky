@@ -40,7 +40,7 @@ def unet_infer(demo_path_img, demo, save_result):
 
     """
     # demo = True
-    # demo_path_img = 'd:/projects/DIP/Final_Project/Unet/Demo/1.jpg'
+    # demo_path_img = './project/Unet/Demo/1.jpg'
     # save_result = True
 
     testset_path = os.path.join("dataset/testset")
@@ -132,12 +132,12 @@ def unet_infer(demo_path_img, demo, save_result):
             if save_result:
                 pred_gray_img = Image.fromarray(pred_gray)
                 pred_gray_img = pred_gray_img.resize((w, h), Image.BICUBIC)
-                pred_gray_img.save('d:/projects/DIP/Final_Project/Unet/results/1_pred_gray_img.png')
+                pred_gray_img.save('./project/Unet/results/1_pred_gray_img.png')
                 mask_pred_gray_img = Image.fromarray(mask_pred_gray)
                 mask_pred_gray_img = mask_pred_gray_img.resize((w, h), Image.BICUBIC)
-                mask_pred_gray_img.save('d:/projects/DIP/Final_Project/Unet/results/1_mask_pred_gray_img.png')
+                mask_pred_gray_img.save('./project/Unet/results/1_mask_pred_gray_img.png')
                 img_hwc_img = Image.open(demo_path_img).convert('RGB')
-                img_hwc_img.save('d:/projects/DIP/Final_Project/Unet/results/1_img_hwc_img.png')
+                img_hwc_img.save('./project/Unet/results/1_img_hwc_img.png')
             # plt.subplot(131).imshow(img_hwc)
             # plt.subplot(132).imshow(mask_pred_gray, cmap="gray")
             # plt.subplot(133).imshow(pred_gray, cmap="gray")
